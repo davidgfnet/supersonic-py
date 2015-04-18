@@ -1,6 +1,7 @@
 
 from xml import XML, XN
 from model import getid
+import random
 
 callback_url = {}
 
@@ -23,6 +24,17 @@ def list_folders(mlib, **kwargs):
 		])
 	])
 
+def list_songs(node, child, ids):
+	return [ XN(node, {
+		'id':x, 'title':child[x]._title, 'parent':child[x]._albumid,
+		'album':child[x]._album, 'artist':child[x]._artist,
+		'track':child[x]._tn, 'genre':child[x]._genre,
+		'suffix':child[x]._ext, 'contentType':child[x]._fmt,
+		'duration':child[x]._duration, 'year':child[x]._release,
+		'bitRate': child[x]._bitrate, 'discNumber': child[x]._discn,
+		'isDir':'false'
+	}) for x in ids ]
+
 @http("/rest/getMusicDirectory.view")
 def list_directory(mlib, _id, **kwargs):
 
@@ -30,35 +42,48 @@ def list_directory(mlib, _id, **kwargs):
 	if _id in artists.keys():
 		n = artists[_id]
 		child = mlib.getAlbums(_id)
-		ids = sorted([ (child[x], x) for x in child ])
+		ids = sorted([ (child[x]._album, x) for x in child ])
 		ids = [ x[1] for x in ids ]
 
 		child = [ XN('child', {
-			'id':x, 'title':child[x], 'parent':_id, 'artist':n, 'isDir':'true'
+			'id':x, 'title':child[x]._album, 'parent':_id, 'artist':n, 'isDir':'true'
 		}) for x in ids ]
 
 	albums = mlib.getAllAlbums()
 	if _id in albums.keys():
-		n = albums[_id]
+		n = albums[_id]._album
 		child = mlib.getSongs(_id)
 		ids = sorted([ (int(child[x]._tn), x) for x in child ])
 		ids = [ x[1] for x in ids ]
 
-		child = [ XN('child', {
-			'id':x, 'title':child[x]._title, 'parent':_id,
-			'album':child[x]._album, 'artist':child[x]._artist,
-			'track':child[x]._tn, 'genre':child[x]._genre,
-			'suffix':child[x]._ext, 'contentType':child[x]._fmt,
-			'duration':child[x]._duration, 'year':child[x]._release,
-			'bitRate': child[x]._bitrate, 'discNumber': child[x]._discn,
-			'isDir':'false'
-		}) for x in ids ]
+		child = list_songs('child', child, ids)
 
 	return XML([
 		XN('directory', {
 			'id': _id,
 			'name': n,
 		},
+		child
+		)
+	])
+
+@http("/rest/getAlbumList.view")
+def list_albums(mlib, **kwargs):
+	if '_size' not in kwargs: size = 10
+	else: size = int(kwargs['_size'])
+	if '_offset' not in kwargs: offset = 10
+	else: offset = int(kwargs['_offset'])
+
+	child = mlib.getAllAlbums()
+	ids = sorted([ (child[x]._album, x) for x in child ])
+	ids = [ x[1] for x in ids ]
+
+	child = [ XN('album', {
+		'id':x, 'title':child[x]._album, 'artist':child[x]._artist, 'parent':child[x]._artistid, 'isDir':'true'
+	}) for x in ids[offset:offset+size] ]
+
+	return XML([
+		XN('albumList', {},
 		child
 		)
 	])
@@ -96,8 +121,15 @@ def get_indexes(mlib, **kwargs):
 	])
 
 @http("/rest/getRandomSongs.view")
-def get_indexes(mlib, **kwargs):
-	return XML([])
+def get_random(mlib, **kwargs):
+	if '_size' not in kwargs: kwargs['_size'] = 10
+
+	songs = mlib.getRandom(int(kwargs['_size']))
+	return XML([
+		XN('randomSongs', {},
+		list_songs('song', songs, songs)
+		)
+	])
 
 @http("/rest/getUser.view")
 def get_user(mlib, **kwargs):

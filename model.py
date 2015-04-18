@@ -1,6 +1,5 @@
 
-import os
-import hashlib
+import os, hashlib, random
 
 def fhash(fn):
 	return hashlib.sha1(open(fn, "rb").read()).hexdigest()
@@ -10,6 +9,8 @@ def getid(o):
 class Song():
 	def __init__(self, title, artist, album, tn, genre, ext, fmt, dur, rel, discn, bitr, fn):
 		self._id = getid(title+"_"+album+"_"+artist)
+		self._albumid = getid(album+"_"+artist)
+		self._artistid = getid(artist)
 		self._title = title
 		self._artist = artist
 		self._album = album
@@ -28,6 +29,7 @@ class Song():
 class Album():
 	def __init__(self, artist, album):
 		self._id = getid(album+"_"+artist)
+		self._artistid = getid(artist)
 		self._album = album
 		self._artist = artist
 		self._songs = []
@@ -48,6 +50,10 @@ class Album():
 			r.update({ s._id:s for s in self._songs })
 		return r
 
+	def getRandom(self):
+		s = random.choice(self._songs)
+		return { s._id:s }
+
 class Artist():
 	def __init__(self, artist):
 		self._id = getid(artist)
@@ -67,7 +73,7 @@ class Artist():
 		al.addSong(s)
 
 	def getAlbums(self):
-		return { a._id:a._album for a in self._albums }
+		return { a._id:a for a in self._albums }
 
 	def getSongs(self, albid):
 		for album in self._albums:
@@ -81,6 +87,8 @@ class Artist():
 			r.update( album.getAllSongs() )
 		return r
 
+	def getRandom(self):
+		return random.choice(self._albums).getRandom()
 
 class MusicDir():
 	def __init__(self, modtime):
@@ -125,5 +133,10 @@ class MusicDir():
 			r.update(artist.getSongs(albid))
 		return r
 
+	def getRandom(self, n):
+		r = {}
+		for i in range(n):
+			r.update(random.choice(self._artists).getRandom())
+		return r
 
 

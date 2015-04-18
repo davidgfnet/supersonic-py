@@ -25,7 +25,7 @@ def file_to_db(db, fn):
 		add_song(db, s)
 	elif fn.lower().endswith("mp3"):
 		m3 = eyed3.load(fn)
-		g = "" if m3.tag.genre.id is None else eyed3.id3.ID3_GENRES[m3.tag.genre.id]
+		g = "" if m3.tag.genre is None else eyed3.id3.ID3_GENRES[m3.tag.genre.id]
 		s = Song(m3.tag.title, m3.tag.artist, m3.tag.album, m3.tag.track_num[0], 
 			g, "mp3", "audio/mpeg", m3.info.time_secs, m3.tag.getBestDate().year, fn)
 		add_song(db, s)

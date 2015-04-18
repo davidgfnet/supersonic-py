@@ -36,10 +36,12 @@ def list_directory(mlib, _id, **kwargs):
 	if _id in artists.keys():
 		n = artists[_id]
 		child = mlib.getAlbums(artists[_id])
+		ids = sorted([ (child[x], x) for x in child ])
+		ids = [ x[1] for x in ids ]
 
 		child = [ XN('child', {
 			'id':x, 'title':child[x], 'parent':_id, 'artist':n, 'isDir':'true'
-		}) for x in sorted(child.keys()) ]
+		}) for x in ids ]
 
 	albums = mlib.getAllAlbums()
 	if _id in albums.keys():
@@ -85,7 +87,11 @@ def get_license(mlib, **kwargs):
 @http("/rest/getIndexes.view")
 def get_indexes(mlib, **kwargs):
 	artists = mlib.getArtists()
-	artists = [ XN('artist', {'id':k, 'name':artists[k]}) for k in artists ]
+	ids = sorted([ (artists[x], x) for x in artists ])
+	ids = [ x[1] for x in ids ]
+
+	artists = [ XN('artist', {'id':k, 'name':artists[k]})
+		for k in ids ]
 	return XML([
 		XN('indexes', {
 			'lastModified':'0',

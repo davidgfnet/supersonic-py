@@ -39,7 +39,7 @@ def list_directory(mlib, _id, **kwargs):
 
 		child = [ XN('child', {
 			'id':x, 'title':child[x], 'parent':_id, 'artist':n, 'isDir':'true'
-		}) for x in child ]
+		}) for x in sorted(child.keys()) ]
 
 	albums = mlib.getAllAlbums()
 	if _id in albums.keys():

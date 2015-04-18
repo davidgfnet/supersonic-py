@@ -19,7 +19,27 @@ class AlbumCovers():
 	def __del__(self):
 		self._covers.close()
 	def addCover(self,albumid,cover):
-		self._covers[albumid.encode('utf8')] = cover
+		try:
+			r = {}
+			im = Image.open(StringIO(cover))
+			bigsize = max(128, max(im.size))
+			cursize = bigsize
+			
+			while cursize >= 128:
+				ratio = cursize/float(bigsize)
+				news = (int(im.size[0]*ratio), int(im.size[1]*ratio))
+				output = StringIO()
+				im = im.resize(news, Image.ANTIALIAS)
+				im.save(output, format="JPEG")
+				r = output.getvalue()
+				output.close()
+				r[cursize] = r
+				cursize /= 2
+		except:
+			# Just return whatever we got
+			r = { "default": cover }
+
+		self._covers[albumid.encode('utf8')] = r
 	def hasCover(self,albumid):
 		return albumid.encode('utf8') in self._covers
 	def getCover(self,albumid, size = None):
@@ -30,23 +50,13 @@ class AlbumCovers():
 			r = ""
 		self._covers.sync()
 
-		try:
-			if size:
-				im = Image.open(StringIO(r))
-				bigsize = max(im.size)
-				if bigsize > size:
-					ratio = size/float(bigsize)
-					news = (int(im.size[0]*ratio), int(im.size[1]*ratio))
-					output = StringIO()
-					im = im.resize(news, Image.ANTIALIAS)
-					im.save(output, format="JPEG")
-					r = output.getvalue()
-					output.close()
-		except:
-			# Just return whatever we got
-			pass
+		idx = max(r.keys())
+		if size and "default" not in r.keys():
+			sizes = r.keys()
+			idx = min(range(len(sizes)), key=lambda i: abs(sizes[i]-size))
+			idx = sizes[idx]
 
-		return r
+		return r[idx]
 
 class Song():
 	def __init__(self, title, artist, album, tn, genre, ext, fmt, dur, rel, discn, bitr, cover, fn):

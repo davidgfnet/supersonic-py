@@ -1,6 +1,6 @@
 
 def XN(name, attrs, data = []):
-	eattrs = " ".join([ '%s="%s"' % (k, attrs[k]) for k in attrs ])
+	eattrs = " ".join([ '%s="%s"' % (k, attrs[k]) for k in attrs if attrs[k] ])
 	edata = "\n".join(data)
 
 	if len(data) == 0:

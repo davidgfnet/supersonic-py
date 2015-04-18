@@ -32,7 +32,7 @@ def list_songs(node, child, ids):
 		'suffix':child[x]._ext, 'contentType':child[x]._fmt,
 		'duration':child[x]._duration, 'year':child[x]._release,
 		'bitRate': child[x]._bitrate, 'discNumber': child[x]._discn,
-		'isDir':'false'
+		'isDir':'false', 'coverArt':child[x]._albumid if child[x]._hascover else None
 	}) for x in ids ]
 
 @http("/rest/getMusicDirectory.view")
@@ -46,7 +46,8 @@ def list_directory(mlib, _id, **kwargs):
 		ids = [ x[1] for x in ids ]
 
 		child = [ XN('child', {
-			'id':x, 'title':child[x]._album, 'parent':_id, 'artist':n, 'isDir':'true'
+			'id':x, 'title':child[x]._album, 'parent':_id, 'artist':n, 'isDir':'true',
+			'coverArt': x if mlib.hasCover(x) else None
 		}) for x in ids ]
 
 	albums = mlib.getAllAlbums()
@@ -79,7 +80,8 @@ def list_albums(mlib, **kwargs):
 	ids = [ x[1] for x in ids ]
 
 	child = [ XN('album', {
-		'id':x, 'title':child[x]._album, 'artist':child[x]._artist, 'parent':child[x]._artistid, 'isDir':'true'
+		'id':x, 'title':child[x]._album, 'artist':child[x]._artist, 'parent':child[x]._artistid,
+		'isDir':'true', 'coverArt': x if mlib.hasCover(x) else None
 	}) for x in ids[offset:offset+size] ]
 
 	return XML([
@@ -90,8 +92,10 @@ def list_albums(mlib, **kwargs):
 
 @http("/rest/getCoverArt.view")
 def get_coverart(mlib, _id, **kwargs):
-	return XML({
-	})
+	if '_size' in kwargs:
+		return mlib.getCover(_id, int(kwargs['_size']))
+	else:
+		return mlib.getCover(_id)
 
 @http("/rest/getLicense.view")
 def get_license(mlib, **kwargs):

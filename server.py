@@ -15,8 +15,9 @@ if not 'DATABASE' in os.environ:
 	sys.exit(0)
 
 dbname = os.environ['DATABASE']
+dbtime = int(os.path.getmtime(dbname)*1000)
 db = pickle.load(open(dbname,"rb"))
-mlib = MusicDir()
+mlib = MusicDir(dbtime)
 for artist in db:
 	for album in db[artist]:
 		for song in db[artist][album]:

@@ -8,7 +8,7 @@ def getid(o):
 	return hashlib.sha1(o.encode('utf-8')).hexdigest()[:8]
 
 class Song():
-	def __init__(self, title, artist, album, tn, genre, ext, fmt, dur, rel, fn):
+	def __init__(self, title, artist, album, tn, genre, ext, fmt, dur, rel, discn, bitr, fn):
 		self._id = getid(title+"_"+album+"_"+artist)
 		self._title = title
 		self._artist = artist
@@ -19,6 +19,8 @@ class Song():
 		self._duration = dur
 		self._genre = genre
 		self._release = rel
+		self._bitrate = bitr
+		self._discn = discn
 		self._file = os.path.realpath(fn)
 	def __str__(self):
 		return "%s: %s - %s (%s)" % (self._id, self._title, self._album, self._artist)
@@ -67,9 +69,9 @@ class Artist():
 	def getAlbums(self):
 		return { a._id:a._album for a in self._albums }
 
-	def getSongs(self, alb):
+	def getSongs(self, albid):
 		for album in self._albums:
-			if alb == album._album:
+			if albid == album._id:
 				return album.getSongs()
 		return {}
 
@@ -81,8 +83,9 @@ class Artist():
 
 
 class MusicDir():
-	def __init__(self):
+	def __init__(self, modtime):
 		self._artists = []
+		self._modtime = modtime
 
 	def addSong(self, s):
 		ar = None
@@ -111,15 +114,15 @@ class MusicDir():
 			r.update( artist.getAllSongs() )
 		return r
 
-	def getAlbums(self, a):
+	def getAlbums(self, art_id):
 		for artist in self._artists:
-			if a == artist._artist:
+			if art_id == artist._id:
 				return artist.getAlbums()
 
-	def getSongs(self, alb):
+	def getSongs(self, albid):
 		r = {}
 		for artist in self._artists:
-			r.update(artist.getSongs(alb))
+			r.update(artist.getSongs(albid))
 		return r
 
 

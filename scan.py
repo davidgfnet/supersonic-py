@@ -22,8 +22,10 @@ def file_to_db(db, fn):
 		d = vf.comment().as_dict()
 		if 'GENRE' not in d:
 			d['GENRE'] = [""]
+		if 'DISCNUMBER' not in d:
+			d['DISCNUMBER'] = ["1"]
 		s = Song(d['TITLE'][0], d['ARTIST'][0], d['ALBUM'][0], d['TRACKNUMBER'][0], d['GENRE'][0],
-			"ogg", "audio/ogg", int(vf.time_total(0)), d['DATE'][0].split(":")[0].split("-")[0], fn)
+			"ogg", "audio/ogg", int(vf.time_total(0)), d['DATE'][0].split(":")[0].split("-")[0], d['DISCNUMBER'][0], vf.info().bitrate_nominal/1000, fn)
 		add_song(db, s)
 	elif fn.lower().endswith("mp3"):
 		m3 = eyed3.load(fn)
@@ -34,8 +36,12 @@ def file_to_db(db, fn):
 		y = m3.tag.getBestDate()
 		if y is None: y = 0
 		else: y = y.year
+		if m3.tag.disc_num[0]:
+			discn = m3.tag.disc_num[0]
+		else:
+			discn = 1
 		s = Song(m3.tag.title, m3.tag.artist, m3.tag.album, m3.tag.track_num[0], 
-			g, "mp3", "audio/mpeg", m3.info.time_secs, y, fn)
+			g, "mp3", "audio/mpeg", m3.info.time_secs, y, discn, m3.info.bit_rate[1], fn)
 		add_song(db, s)
 
 def scan_folder(db, path):

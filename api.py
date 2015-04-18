@@ -12,12 +12,6 @@ def http(path):
 		return wrapper
 	return http_decorator
 
-def list_dir(db, _id):
-	artists = db.getArtists()
-	if _id in artists.keys():
-		return artists[_id], db.getAlbums(artists[_id])
-	raise Exception("ID not found!")
-
 @http("/rest/getMusicFolders.view")
 def list_folders(mlib, **kwargs):
 	return XML([
@@ -35,7 +29,7 @@ def list_directory(mlib, _id, **kwargs):
 	artists = mlib.getArtists()
 	if _id in artists.keys():
 		n = artists[_id]
-		child = mlib.getAlbums(artists[_id])
+		child = mlib.getAlbums(_id)
 		ids = sorted([ (child[x], x) for x in child ])
 		ids = [ x[1] for x in ids ]
 
@@ -46,7 +40,7 @@ def list_directory(mlib, _id, **kwargs):
 	albums = mlib.getAllAlbums()
 	if _id in albums.keys():
 		n = albums[_id]
-		child = mlib.getSongs(albums[_id])
+		child = mlib.getSongs(_id)
 		ids = sorted([ (int(child[x]._tn), x) for x in child ])
 		ids = [ x[1] for x in ids ]
 
@@ -56,6 +50,7 @@ def list_directory(mlib, _id, **kwargs):
 			'track':child[x]._tn, 'genre':child[x]._genre,
 			'suffix':child[x]._ext, 'contentType':child[x]._fmt,
 			'duration':child[x]._duration, 'year':child[x]._release,
+			'bitRate': child[x]._bitrate, 'discNumber': child[x]._discn,
 			'isDir':'false'
 		}) for x in ids ]
 
@@ -94,7 +89,7 @@ def get_indexes(mlib, **kwargs):
 		for k in ids ]
 	return XML([
 		XN('indexes', {
-			'lastModified':'0',
+			'lastModified': str(mlib._modtime),
 			'ignoredArticles':'The El La Los Las Le Les'
 		},
 		artists)

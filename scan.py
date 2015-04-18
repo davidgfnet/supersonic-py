@@ -31,8 +31,11 @@ def file_to_db(db, fn):
 			g = ""
 		else:
 			g = eyed3.id3.ID3_GENRES[m3.tag.genre.id]
+		y = m3.tag.getBestDate()
+		if y is None: y = 0
+		else: y = y.year
 		s = Song(m3.tag.title, m3.tag.artist, m3.tag.album, m3.tag.track_num[0], 
-			g, "mp3", "audio/mpeg", m3.info.time_secs, m3.tag.getBestDate().year, fn)
+			g, "mp3", "audio/mpeg", m3.info.time_secs, y, fn)
 		add_song(db, s)
 
 def scan_folder(db, path):

@@ -5,7 +5,7 @@ import hashlib
 def fhash(fn):
 	return hashlib.sha1(open(fn, "rb").read()).hexdigest()
 def getid(o):
-	return hashlib.sha1(o).hexdigest()[:8]
+	return hashlib.sha1(o.encode('utf-8')).hexdigest()[:8]
 
 class Song():
 	def __init__(self, title, artist, album, tn, genre, ext, fmt, dur, rel, fn):

@@ -1,24 +1,42 @@
 
-import os, sys
-from model import Song
+# Using web.py backend
+
+import os, sys, web
+from api import callback_url
+from model import Song, MusicDir
 
 try:
    import cPickle as pickle
 except:
    import pickle
 
-from optparse import OptionParser
-parser = OptionParser()
-parser.add_option("-f", "--database", dest="db",
-                  help="Database file to serve", metavar="DB")
-
-(options, args) = parser.parse_args()
-
-if not options.db:
-	print "Specify an input database!\n"
+if not 'DATABASE' in os.environ:
+	print "Specify an input database through the DATABASE variable!\n"
 	sys.exit(0)
 
-db = load(open(options.db,"rb"))
+dbname = os.environ['DATABASE']
+db = pickle.load(open(dbname,"rb"))
+mlib = MusicDir()
+for artist in db:
+	for album in db[artist]:
+		for song in db[artist][album]:
+			mlib.addSong(song)
 
+class httpindex:
+	def req(self, req, data):
+		return callback_url[req](mlib, **data)
+
+	def POST(self, req):
+		args = { x:"" for x in ["id"] }
+		data = web.input(**args)
+		args = { "_"+x:data[x] for x in data }
+
+		return self.req(req,args)
+
+# Server
+if __name__ == "__main__":
+	urls = ("(.*)", "httpindex")
+	app = web.application(urls, globals())
+	app.run()
 
 

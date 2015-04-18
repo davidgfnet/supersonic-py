@@ -35,7 +35,10 @@ def file_to_db(mlib, fn):
 		if len(m3.tag.images) > 0:
 			cover = m3.tag.images[0].image_data
 
-		s = Song(m3.tag.title, m3.tag.artist, m3.tag.album, m3.tag.track_num[0], 
+		aartist = m3.tag.album_artist
+		if aartist is None: aartist = m3.tag.artist
+
+		s = Song(m3.tag.title, aartist, m3.tag.album, m3.tag.track_num[0], 
 			g, "mp3", "audio/mpeg", m3.info.time_secs, y, discn, m3.info.bit_rate[1], cover, fn)
 		add_song(mlib, s)
 

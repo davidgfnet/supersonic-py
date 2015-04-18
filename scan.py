@@ -20,6 +20,8 @@ def file_to_db(db, fn):
 	if fn.lower().endswith("ogg"):
 		vf = ogg.vorbis.VorbisFile(fn)
 		d = vf.comment().as_dict()
+		if 'GENRE' not in d:
+			d['GENRE'] = [""]
 		s = Song(d['TITLE'][0], d['ARTIST'][0], d['ALBUM'][0], d['TRACKNUMBER'][0], d['GENRE'][0],
 			"ogg", "audio/ogg", int(vf.time_total(0)), d['DATE'][0].split(":")[0].split("-")[0], fn)
 		add_song(db, s)

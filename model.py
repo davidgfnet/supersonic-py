@@ -20,7 +20,6 @@ class Song():
 		self._genre = genre
 		self._release = rel
 		self._file = os.path.realpath(fn)
-		self._hash = fhash(fn)
 	def __str__(self):
 		return "%s: %s - %s (%s)" % (self._id, self._title, self._album, self._artist)
 

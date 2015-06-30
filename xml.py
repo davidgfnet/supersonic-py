@@ -1,6 +1,6 @@
 
 def st(s):
-	return s.replace('"',"&quot;")
+	return str(s).replace('"',"&quot;")
 
 def XN(name, attrs, data = []):
 	eattrs = " ".join([ '%s="%s"' % (st(k), st(attrs[k])) for k in attrs if attrs[k] ])

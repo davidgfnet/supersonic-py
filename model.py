@@ -47,7 +47,7 @@ class AlbumCovers():
 		if k in self._covers:
 			r = self._covers[k]
 		else:
-			r = ""
+			r = { "default": "" }
 		self._covers.sync()
 
 		idx = max(r.keys())

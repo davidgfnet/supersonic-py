@@ -35,6 +35,27 @@ def list_songs(node, child, ids):
 		'isDir':'false', 'coverArt':child[x]._albumid if child[x]._hascover else None
 	}) for x in ids ]
 
+@http("/rest/getAlbum.view")
+def list_directory(mlib, _id, **kwargs):
+	albums = mlib.getAllAlbums()
+	n = albums[_id]._album
+	child = mlib.getSongs(_id)
+	ids = sorted([ (int(child[x]._tn), x) for x in child ])
+	ids = [ x[1] for x in ids ]
+
+	child = list_songs('child', child, ids)
+
+	return XML([
+		XN('album', {
+			'id': _id,
+			'name': n,
+			'songCount': str(len(child)),
+			'coverArt': _id if mlib.hasCover(_id) else None
+		},
+		child
+		)
+	])
+
 @http("/rest/getMusicDirectory.view")
 def list_directory(mlib, _id, **kwargs):
 
@@ -69,6 +90,7 @@ def list_directory(mlib, _id, **kwargs):
 	])
 
 @http("/rest/getAlbumList.view")
+@http("/rest/getAlbumList2.view")
 def list_albums(mlib, **kwargs):
 	if '_size' not in kwargs: size = 10
 	else: size = int(kwargs['_size'])
@@ -162,4 +184,7 @@ def get_stream(mlib, _id, **kwargs):
 	f = mlib.getAllSongs()[_id]._file
 	return open(f,"rb").read()
 
+@http("/rest/ping.view")
+def get_stream(mlib, **kwargs):
+	return XML([])
 

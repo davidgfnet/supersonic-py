@@ -24,6 +24,9 @@ class httpindex:
 
 		return self.req(req,args)
 
+	def GET(self, req):
+		return self.POST(req)
+
 # Server
 if __name__ == "__main__":
 	urls = ("(.*)", "httpindex")

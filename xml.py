@@ -10,7 +10,7 @@ def XN(name, attrs, data = []):
 
 def XML(d):
 	d = "\n".join(d)
-	d = d.replace("&","&amp;")
+	d = d.replace("&","&amp;").replace('"',"&quot;")
 	return '<?xml version="1.0" encoding="UTF-8"?>\n' \
 	'<subsonic-response status="ok" version="1.4.0">\n' + d + '\n</subsonic-response>'
 

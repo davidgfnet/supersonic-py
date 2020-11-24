@@ -1,6 +1,14 @@
 # supersonic
 Music server implementing the Subsonic API
 
+Warning!
+--------
+
+This project is deprecated and no longer maintained! Please check other projects such as:
+
+ * https://github.com/davidgfnet/supersonic-cpp
+ * https://github.com/sentriz/gonic
+
 What
 ----
 
